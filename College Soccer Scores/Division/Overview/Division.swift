@@ -31,9 +31,5 @@ struct Division: View {
                 }
             }
         }
-        // padding to go higher than Tab View
-        // assuming tab view on no phone i greater than 120
-        // better would be to caluclate the tab view height
-        .padding(.bottom, 120)
     }
 }

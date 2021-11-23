@@ -11,15 +11,17 @@ class StandingsViewModel: ObservableObject {
   @Published var teams = [Standing]()
   @Published var fetching = false
   
-    func fetchData(conf: Conference) {
-      fetching = true
-      
-        let url = "https://" + conf.link + "/standings.aspx?path=msoc"
-        fetchStandings(url: url) { standing in
-          DispatchQueue.main.async {
-              self.teams = standing
-              self.fetching = false
-          }
-      }
-  }
+    func fetchData(link: String, standingsModel: StandingsViewModel) {
+        fetching = true
+        guard let url = URL(string: "https://" + link + "/standings.aspx?path=msoc") else {return}
+        Task{
+            do {
+                self.teams = try await fetchStandings(url: url)
+                self.fetching = false
+            } catch {
+                print("Request failed with error: \(error)")
+                fetching = false
+            }
+        }
+    }
 }

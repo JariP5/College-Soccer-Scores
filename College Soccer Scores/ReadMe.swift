@@ -7,14 +7,15 @@
 
 // OVERVIEW AND NEXT STEPS FOR THE APP
 
-// 1. Learn how to automtically save xcode project maybe to GitHub -> frequently safe project
+// 1. Learn how to automtically save xcode project maybe to GitHub -> frequently safe project  COMPLETED
+// 4. Distinguish between men and womens soccer COMPLETED
+// 3. Division Championship SOMEWHAT COMPLETED
+
 // 2. Conference Championship
-// 3. Division Championship
-// 4. Distinguish between men and womens soccer
 // 5. Understand why some scroll views are collapsing with progress view and some not
 // Examples: Rankings(vert + hor), Standings(hor), Schedule(not collapsing)
 // 7. Let json decoder be more stable, when values are null or do not exist
-// 8. Insert data for mens api conferences for all divisions
+// 8. Insert data for api conferences for all divisions
 // 9. Create a Favorites page
 // 10. Try to find a way to include other conferences using their htmls
 // 11. What happens when something does not work, internet connection bad, data bad
@@ -22,7 +23,8 @@
 // 13. Include security
 // 14. Test for different iphones
 // 15. Talk to lawyers, conferences, api provider etc.
-// 16. Empty space from xcode builds
+// 16. Current week of season, if closes after season show last week
+// 17. Important: Find a way to use conf.endDate and div.endDate to find confTournament games
 
 
 // RESEARCH ON HOW TO GET DATA FOR DIFFERENT CONFERENCES
@@ -90,6 +92,7 @@
 //D1
 //- [ ] ASUN
 //- [ ] WAC
+//- [ ] SEC ()
 //D2
 //- [ ] CACC
 //- [ ] ECC
@@ -123,5 +126,5 @@
 //
 //Different API
 //Pac-12 (D1)
-//SUNYAC (maybe just HTML) (I believe D3)
+//SUNYAC (maybe just HTML) (D3)
 

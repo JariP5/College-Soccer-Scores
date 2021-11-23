@@ -12,18 +12,22 @@ import Foundation
 class RankingsViewModel: ObservableObject {
     @Published var rankings = [Ranking]() // all team rankings
     @Published var fetching = false // used in RankingsView to show loading indicator
+    var url : String
+    
+    init(_ url: String) {
+        self.url = url
+    }
   
-    func fetchData(url: String) {
-        
-        fetching = true // fetching is true until all rankings are downloaded
-        
-        // download the rankings from html
-        fetchRankings(url: url) { rankings in
-            // waiting until main queue is ready
-            // to update variables when fetching was finished
-            DispatchQueue.main.async {
-                self.rankings = rankings
+    func fetchData() {
+        fetching = true
+        guard let url = URL(string: url) else {return}
+        Task{
+            do {
+                self.rankings = try await fetchRankings(url: url)
                 self.fetching = false
+            } catch {
+                print("Request failed with error: \(error)")
+                fetching = false
             }
         }
     }

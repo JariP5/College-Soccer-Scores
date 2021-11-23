@@ -10,7 +10,7 @@ import SwiftSoup
 
 // use api to get all the games of a conference in an array
 // data is in json format
-func fetchSchedule(conf: Conference, completionHandler: @escaping ([Game]) -> Void) {
+@MainActor func fetchSchedule(conf: Conference, scheduleModel: ScheduleViewModel) async throws -> [Game]{
     
     // change date to the end of the day to include all game on the conf.end date
     let extendedEnd = conf.end + " 23:59:59"
@@ -19,13 +19,7 @@ func fetchSchedule(conf: Conference, completionHandler: @escaping ([Game]) -> Vo
     var components = URLComponents()
         components.scheme = "https"
         components.host = conf.link
-    
-        // this needs to be changed; urls might be used completely
-        if (conf.link == "bigten.org" || conf.link == "bigwest.org") {
-            components.path = "/calendar.aspx?path=msoc"
-        } else {
-            components.path = "/services/responsive-calendar.ashx"
-        }
+        components.path = "/services/responsive-calendar.ashx"
         
         // api parameters
         // school_id == 0 means that all schools are included
@@ -54,28 +48,11 @@ func fetchSchedule(conf: Conference, completionHandler: @escaping ([Game]) -> Vo
         "Referer": "https://" + conf.link + "/calendar.aspx?path=msoc",
         "Accept-Language": "en-US,en;q=0.9,de;q=0.8"
     ]
-        
-    let task = URLSession.shared.dataTask(with: request, completionHandler: { (data, response, error) in
-      if let error = error {
-        print("Error with fetching schedule: \(error)")
-        return
-      }
-      
-      guard let httpResponse = response as? HTTPURLResponse,
-            (200...299).contains(httpResponse.statusCode) else {
-                print("Error with the response, unexpected status code: \(String(describing: response))")
-        return
-      }
-
-      if let data = data,
-        let games = try? JSONDecoder().decode([Game].self, from: data) {
-          completionHandler(games)
-      }
-    })
-    task.resume()
+    
+    let (data, _) = try await URLSession.shared.data(for: request)
+    let fetchedGames = try JSONDecoder().decode([Game].self, from: data)
+    return fetchedGames
 }
-
-
 
 
 

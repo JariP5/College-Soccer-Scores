@@ -9,21 +9,29 @@ import Foundation
 
 
 struct DivisionStruct {
-    var urlString: String // link to the rankings retrieved from unitedsoccercoaches
+    var rankingURLmen: String // link to the rankings retrieved from unitedsoccercoaches
+    var rankingURLwomen: String
+    var championshipURLmen: String
+    var championshipURLwomen: String
     var name: String
-    var abbreviation: String
-    var confs: [Conference] // all conferences in division
+    var men: [Conference] // all conferences in division
+    var women: [Conference] // all conferences in division
+    var championshipStartMen: String
+    var championshipStartWomen: String
 }
+
 
 struct Conference {
     var link: String // for schedule api
-    // parameters of api
+    // parameters of api for both genders
+    // set a default value since not all conferences have men and women soccer
     var sport_id: String
     var school_id: String
     var start: String
     var end: String
-    var standingsURL: String // for standings html
-    var name: String
+    // for fetching schedule
+    var standings: String
+    var name: String // normal name
 }
 
 struct Ranking: Identifiable, Equatable, Hashable {

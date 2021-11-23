@@ -18,6 +18,10 @@ struct ConferenceStandings: View {
         
         ScrollView {
             VStack{
+                // also helps to keep scrollview from collapsing
+                Rectangle()
+                    .fill(.bar)
+                    .frame(maxWidth: .infinity, idealHeight: 20, maxHeight: 20)
                 
                 // present when data is loaded
                 if !viewModel.fetching {
@@ -39,11 +43,6 @@ struct ConferenceStandings: View {
                         .padding(.top, 30)
                         .padding(.horizontal, 10)
                     }
-                // while data is loaded use rectangle to keep scroll view from collapsing
-                } else {
-                    Rectangle()
-                        .fill(Color.white)
-                        .frame(maxWidth: .infinity)
                 }
                 
                 // loop over teams in conference with their standings data
@@ -59,7 +58,7 @@ struct ConferenceStandings: View {
                     // to seperate between regions a rectangle is used
                     } else if (team.points < -1) {
                         Rectangle()
-                            .fill(Color.white)
+                            .fill(.bar)
                             .frame(maxWidth: .infinity, idealHeight: 30, maxHeight: 30)
                         StandingsRowView(team: team)
                             .padding(.vertical, 5)
@@ -69,9 +68,18 @@ struct ConferenceStandings: View {
                         StandingsRowView(team: team)
                     }
                 }
+                
+                // provide some space under the last team in the standings
+                // so it can be read better
+                if !viewModel.fetching {
+                    Rectangle()
+                        .fill(.white)
+                        .frame(height: 8)
+                }
             }
-            .background(.bar)
+            .background(.white)
         }
+        .background(.bar)
         .overlay {
             if viewModel.fetching {
                 ProgressView("Fetching data, please wait...")
@@ -82,7 +90,7 @@ struct ConferenceStandings: View {
         .task {
             // fetch data if conference link is valid and was not loadede before
             if (conf.link != "" && viewModel.teams.count <= 0){
-                viewModel.fetchData(conf: conf)
+                viewModel.fetchData(link: conf.link, standingsModel: viewModel)
             }
         }
     }

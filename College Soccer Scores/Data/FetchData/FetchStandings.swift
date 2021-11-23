@@ -10,34 +10,12 @@ import SwiftSoup
 
 
 // get html content of standings
-// all standings html seem to be set up the same way for all conference that
-// use an api for their schedule
-func fetchStandings(url: String, completionHandler: @escaping ([Standing]) -> Void) {
-    let request = URLRequest(url: URL(string: url)!)
-        
-        let task = URLSession.shared.dataTask(with: request, completionHandler: { (data, response, error) in
-          if let error = error {
-            print("Error with fetching standings: \(error)")
-            return
-          }
-          
-          guard let httpResponse = response as? HTTPURLResponse,
-                (200...299).contains(httpResponse.statusCode) else {
-                    print("Error with the response, unexpected status code: \(String(describing: response))")
-            return
-          }
-
-            if let data = data {
-                let contents = String(data: data, encoding: .ascii)
-                do {
-                    let standings = try readStandingsHTML(html: contents!)
-                    completionHandler(standings)
-                } catch {
-                    return
-                }
-            }
-        })
-        task.resume()
+// all standings html seem to be set up the same way for all conferences
+@MainActor func fetchStandings(url: URL) async throws -> [Standing]{
+    let (data, _) = try await URLSession.shared.data(from: url)
+    let contents = String(data: data, encoding: .ascii)
+    let fetchedStandings = try readStandingsHTML(html: contents!)
+    return fetchedStandings
 }
 
 
@@ -75,7 +53,14 @@ func readStandingsHTML(html: String) throws -> [Standing] {
                 } else if (counter == 1) {
                     confRec = try dataPoint.text()
                     // calulate points in conference from conference record
-                    let array = confRec.components(separatedBy: "-")
+                    var array = confRec.components(separatedBy: "-")
+                    
+                    // confirm that the array only is out of integers
+                    // if not set points to 0
+                    if (!confirmArrayIsValid(array: array)) {
+                        array[0] = "0"
+                    }
+                    
                     points = Int(array[0])! * 3
                     // check for draws since records can look like 3-2 or 2-0-4 to include 4 draws
                     if array.count > 2 {
@@ -102,5 +87,26 @@ func readStandingsHTML(html: String) throws -> [Standing] {
     return standings
 }
 
+// check that only integers and at least one integer is in the array
+func confirmArrayIsValid (array: [String]) -> Bool {
+    
+    if array.isEmpty {
+        return false
+    }
+    
+    for data in array {
+        if !data.isInt {
+            return false
+        }
+    }
+    return true
+}
+
+// check if string is convertible to integer
+extension String {
+    var isInt: Bool {
+        return Int(self) != nil
+    }
+}
 
 

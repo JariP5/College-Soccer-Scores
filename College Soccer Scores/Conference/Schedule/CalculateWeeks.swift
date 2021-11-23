@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 // HELPER METHODS FOR CONFERENCE SCHEDULE
 
 // get the current week of the year from the day when called
@@ -31,22 +32,26 @@ func currentWeekOfSeason(weeks: [Week]) -> Week {
 
 // create an array of weeks starting monday and ending sunday
 // all weeks between the starting and ending string passed as arguments
-func convertToWeeks (start: String, end: String) -> [Week]{
+func convertToWeeks (start: Date, end: String) -> [Week]{
     
     // covert strings to date objects
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "MM/dd/yyyy"
-    let startDate = dateFormatter.date(from: start)
     let endDate = dateFormatter.date(from: end)
     
     // initalize empty week array
     var weeks = [Week]()
-    
+        
     // get the monday of the first week
     let calendar = Calendar.current
-    let components = calendar.dateComponents([.weekday], from: (startDate ?? dateFormatter.date(from: "09/02/2021"))!)
+    let components = calendar.dateComponents([.weekday], from: (start))
     let dayOfWeek = components.weekday
-    var monday = calendar.date(byAdding: .day, value: -dayOfWeek! + 2, to: startDate!) // monday is titled with day 2 since sunday is 1
+    var monday: Date!
+    if (dayOfWeek! == 1) { // if starting in a sunday
+        monday = calendar.date(byAdding: .day, value: -6, to: start) // take the omnday before that sunday
+    } else {
+        monday = calendar.date(byAdding: .day, value: -dayOfWeek! + 2, to: start) // monday is titled with day 2 since sunday is 1
+    }
     
     // keeping track of week of the season
     var counter = 1
@@ -62,7 +67,13 @@ func convertToWeeks (start: String, end: String) -> [Week]{
         let weekOfTheYear = comp.weekOfYear
         
         // add week to the end of array
-        weeks.append(Week(startDate: monday!, endDate: sunday!, weekOfSeason: counter, weekOfTheYear: weekOfTheYear!))
+        // let last week end in the last date
+        if (sunday! > endDate!) {
+            weeks.append(Week(startDate: monday!, endDate: endDate!, weekOfSeason: counter, weekOfTheYear: weekOfTheYear!))
+        } else {
+            weeks.append(Week(startDate: monday!, endDate: sunday!, weekOfSeason: counter, weekOfTheYear: weekOfTheYear!))
+        }
+        
         
         // skip seven days ahead to monday of next week
         monday = calendar.date(byAdding: .day, value: 7, to: monday!)
@@ -101,6 +112,19 @@ func dateToString2 (date: Date) -> String {
     // Set Date Format
     dateFormatter.dateFormat = "yyyy-MM-dd"
     return dateFormatter.string(from: date)
+}
+
+func createDefaultDate() -> Date{
+    // Specify date components
+    var dateComponents = DateComponents()
+    dateComponents.year = 1980
+    dateComponents.month = 7
+    dateComponents.day = 11
+
+    // Create date from components
+    let userCalendar = Calendar(identifier: .gregorian) // since the components above (like year 1980) are for Gregorian
+    let someDateTime = userCalendar.date(from: dateComponents)
+    return someDateTime!
 }
 
 

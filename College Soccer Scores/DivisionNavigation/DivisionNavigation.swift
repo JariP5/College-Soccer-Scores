@@ -17,6 +17,8 @@ struct DivisionNavigation: View {
     @State var current = "Conferences" // variable to keep track of active tab, starting on conference
     @Namespace var animation // animation to switch between view through tap bar
     @State private var selectedGender: Gender = .men // selected gender
+    @StateObject var menRankingModel = RankingsViewModel("https://unitedsoccercoaches.org/rankings/college-rankings/ncaa-di-men/")
+    @StateObject var womenRankingModel = RankingsViewModel("https://unitedsoccercoaches.org/rankings/college-rankings/ncaa-di-women/")
     
     var body: some View {
         
@@ -93,11 +95,27 @@ struct DivisionNavigation: View {
                         // Content
                         switch current{
                             case "Conferences":
-                                Division(conf: div.confs, amountOfRows: Int(ceil(Double(div.confs.count) / 3.0)))
+                            
+                            if selectedGender == .men {
+                                Division(conf: div.men, amountOfRows: Int(ceil(Double(div.men.count) / 3.0)))
+                            } else {
+                                Division(conf: div.women, amountOfRows: Int(ceil(Double(div.women.count) / 3.0)))
+                            }
+                                
                             case "Rankings":
-                                Rankings(div: div)
+                            if selectedGender == .men {
+                                Rankings(viewModel: menRankingModel, name: div.name)
+                            } else {
+                                Rankings(viewModel: womenRankingModel, name: div.name)
+                            }
+                                
                             case "Championship":
-                                Text("Championship")
+                            if selectedGender == .men {
+                                DivisionChampionship(url: div.championshipURLmen)
+                            } else {
+                                DivisionChampionship(url: div.championshipURLwomen)
+                            }
+
                             default:
                                 Text("Not ready yet")
                         }

@@ -25,31 +25,41 @@ struct ConferenceSchedule: View {
               ScrollView {
                   VStack {
                       
+                      
                       // Drop Down Menu
                       // Drop Down() should be implemented in another file
                       // but scroll view reader cannot be passed as an argument
-                      VStack{
-                          // Top of the drop down menu
-                          HStack(){
-                              // Title to show active week
-                              Text("Week \(scheduleModel.selectedWeek.weekOfSeason)")
-                                  .fontWeight(.bold)
-                                  .foregroundColor(.black)
-                              // Switch between arrow up and down depending if the drop down menu is expanded
-                              Image(systemName: expand ? "chevron.up" : "chevron.down")
-                                  .resizable()
-                                  .frame(width: 13, height: 6)
-                                  .foregroundColor(.black)
-                          }.onTapGesture {
-                              self.expand.toggle() // switch the expand value between false and true
+                      VStack(spacing: 0){
+                          if !scheduleModel.fetching {
+                              
+                              Rectangle()
+                                  .fill(.bar)
+                                  .frame(maxWidth: .infinity, idealHeight: 20, maxHeight: 20)
+                              
+                              // Top of the drop down menu
+                              HStack(){
+                                  // Title to show active week
+                                  Text("Week \(scheduleModel.selectedWeek.weekOfSeason)")
+                                      .fontWeight(.bold)
+                                      .foregroundColor(.black)
+                                  // Switch between arrow up and down depending if the drop down menu is expanded
+                                  Image(systemName: expand ? "chevron.up" : "chevron.down")
+                                      .resizable()
+                                      .frame(width: 13, height: 6)
+                                      .foregroundColor(.black)
+                              }.onTapGesture {
+                                  self.expand.toggle() // switch the expand value between false and true
+                              }
+                              .padding(.top)
+                              .frame(maxWidth: .infinity)
+                              // id used to be able to scroll up programmatically
+                              // to this specififc point
+                              .id(0)
+                              // Show the dates of the active week
+                              Text(dateToString1(date: scheduleModel.selectedWeek.startDate) + " - " + dateToString1(date: scheduleModel.selectedWeek.endDate))
+                                  .padding(.bottom)
                           }
-                          // id used to be able to scroll up programmatically
-                          // to this specififc point
-                          .id(0)
-                          
-                          // Show the dates of the active week
-                          Text(dateToString1(date: scheduleModel.selectedWeek.startDate) + " - " + dateToString1(date: scheduleModel.selectedWeek.endDate))
-                        }
+                      }
                       .frame(maxWidth: .infinity) // use full space
                       
                       // dropw down menu activated
@@ -77,18 +87,20 @@ struct ConferenceSchedule: View {
                           }
                       }
                   }
-                  .background(.bar)
+                  .background(.white)
                   
                   // get all dates where games are played in selected week
                   // using the helper method datesInWeek
                   // loop over all dates
                   ForEach(datesInWeek(selectedGames: scheduleModel.selectedGames), id: \.self) { date in
+                      
+                      // header of each group is the date
+                      Text(dateToString2(date: date))
+                          .padding(.top, 30)
+                          .font(.system(size: 25))
+                      
                       // group games by date
                       VStack{
-                          
-                          // header of each group is the date
-                          Text(dateToString2(date: date))
-                          
                           // find every game that matches the date
                           ForEach(scheduleModel.selectedGames) { game in
                               if (game.trimmedDate == date) {
@@ -96,8 +108,7 @@ struct ConferenceSchedule: View {
                               }
                           }
                       }
-                      .background(.bar)
-                      .padding(.top, 30)
+                      .background(.white)
                     }
                 }
                 // show progress view while loading game schedule
@@ -111,15 +122,19 @@ struct ConferenceSchedule: View {
                 .task {
                     // load content if link is valid and it was not loaded before
                     if (conf.link != "" && scheduleModel.games.count <= 0){
+                        let startDate = await scheduleModel.fetchData(conf: conf, scheduleModel: scheduleModel) // load game schedule
                         // get all weeks in season, starting on monday ending in sunday
-                        scheduleModel.seasonWeeks = convertToWeeks(start: conf.start, end: conf.end)
+                        scheduleModel.seasonWeeks = convertToWeeks(start: startDate, end: conf.end)
                         // selected week set to current week; if current week is out of season selected week is set to 1
                         scheduleModel.selectedWeek = currentWeekOfSeason(weeks: scheduleModel.seasonWeeks)
-                        scheduleModel.fetchData(conf: conf) // load game schedule
+                        
+//                        scheduleModel.findGamesForWeek()
+                        scheduleModel.sortGamesToWeek()
+                        scheduleModel.findSelectedGames()
                     }
                 }
             }
-        }
+      }.background(.bar)
     }
 }
 
@@ -130,23 +145,24 @@ private struct ScheduleRowView: View {
         HStack{
             // Present both teams divided by horizontal line
             VStack(alignment: .leading){
-                Text(game.opponent.title)
+                Text(game.opponent?.title ?? "Not Found")
                     .lineLimit(1)
                     .allowsTightening(/*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
                     .minimumScaleFactor(0.5)
                 Divider() // horizontal divider
-                Text(game.school.title)
+                Text(game.school?.title ?? "Not Found")
                     .lineLimit(1)
                     .allowsTightening(/*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
                     .minimumScaleFactor(0.5)
+                
             }
             
             Divider() // vertical divider since embed in HStack
             
             // Check if game was already played or is just scheduled
-            if (game.result.opponent_score == "-" && game.result.team_score == "-") {
+            if (game.result?.opponent_score == "-" && game.result?.team_score == "-") {
                 // if game is just scheduled result_text represents scheduled time
-                Text(game.result_text)
+                Text(game.result_text ?? "Not Found")
                     .frame(maxWidth: 80)
                     .lineLimit(1)
                     .allowsTightening(/*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
@@ -154,11 +170,11 @@ private struct ScheduleRowView: View {
             } else {
                 // Present Results
                 VStack(alignment: .trailing){ // use trailing in vstack to align subviews
-                    Text(game.result.opponent_score ?? "?")
+                    Text(game.result?.opponent_score ?? "Not Found")
                         .frame(width: 80)
                         .multilineTextAlignment(.center)
                     Divider() // horizontal divider
-                    Text(game.result.team_score ?? "?")
+                    Text(game.result?.team_score ?? "Not Found")
                         .frame(width: 80)
                         .multilineTextAlignment(.center)
                 }
@@ -168,11 +184,3 @@ private struct ScheduleRowView: View {
         .padding()
     }
 }
-
-
-
-
-
-
-
-
