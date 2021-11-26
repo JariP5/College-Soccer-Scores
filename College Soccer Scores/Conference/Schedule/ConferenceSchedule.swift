@@ -5,17 +5,18 @@
 //  Created by Jari Polm on 31.10.21.
 //
 
-import Foundation
 import SwiftUI
+import SwiftfulLoadingIndicators
 
 
 struct ConferenceSchedule: View {
     
     // create instance of class to hold games after fetching
     // even when view is switched inside of the conference
-    @StateObject var scheduleModel: ScheduleViewModel
+    @ObservedObject var scheduleModel: ScheduleViewModel
     var conf: Conference // hold the data for the conference passed by calling view
-    @State var expand = false // observing if weeks are expanded ore not
+    @State private var scrollTarget = 1
+    let errorMessage = "Game schedule is not out yet."
     
     var body: some View {
       VStack{
@@ -23,164 +24,120 @@ struct ConferenceSchedule: View {
           // to specific id
           ScrollViewReader { reader in
               ScrollView {
-                  VStack {
-                      
-                      
-                      // Drop Down Menu
-                      // Drop Down() should be implemented in another file
-                      // but scroll view reader cannot be passed as an argument
-                      VStack(spacing: 0){
-                          if !scheduleModel.fetching {
-                              
-                              Rectangle()
-                                  .fill(.bar)
-                                  .frame(maxWidth: .infinity, idealHeight: 20, maxHeight: 20)
-                              
-                              // Top of the drop down menu
-                              HStack(){
-                                  // Title to show active week
-                                  Text("Week \(scheduleModel.selectedWeek.weekOfSeason)")
-                                      .fontWeight(.bold)
-                                      .foregroundColor(.black)
-                                  // Switch between arrow up and down depending if the drop down menu is expanded
-                                  Image(systemName: expand ? "chevron.up" : "chevron.down")
-                                      .resizable()
-                                      .frame(width: 13, height: 6)
-                                      .foregroundColor(.black)
-                              }.onTapGesture {
-                                  self.expand.toggle() // switch the expand value between false and true
-                              }
-                              .padding(.top)
-                              .frame(maxWidth: .infinity)
-                              // id used to be able to scroll up programmatically
-                              // to this specififc point
-                              .id(0)
-                              // Show the dates of the active week
-                              Text(dateToString1(date: scheduleModel.selectedWeek.startDate) + " - " + dateToString1(date: scheduleModel.selectedWeek.endDate))
-                                  .padding(.bottom)
-                          }
-                      }
-                      .frame(maxWidth: .infinity) // use full space
-                      
-                      // dropw down menu activated
-                      if expand {
-                          // use scrollview to go thorugh all weeks
-                          ForEach(scheduleModel.seasonWeeks, id: \.self) { week in
-                              // show each week in form of a button
-                              Button(action: {
-                                  // minimize drop down again when new week was selected
-                                  self.expand.toggle()
-                                  
-                                  // update the selected week
-                                  scheduleModel.selectedWeek = week
-                                  // then find the games for that week
-                                  scheduleModel.findGamesForWeek()
-                                  reader.scrollTo(0, anchor: .top) // move scroll up to the top when new view is selected
-                              }) {
-                                  // Show all weeks of the season with its dates
-                                  VStack{
-                                      Text("Week \(week.weekOfSeason)")
-                                      Text(dateToString1(date: week.startDate) + " - " + dateToString1(date: week.endDate))
-                                  }
-                                  .padding()
-                              }
-                          }
-                      }
-                  }
-                  .background(.white)
                   
-                  // get all dates where games are played in selected week
-                  // using the helper method datesInWeek
-                  // loop over all dates
-                  ForEach(datesInWeek(selectedGames: scheduleModel.selectedGames), id: \.self) { date in
-                      
-                      // header of each group is the date
-                      Text(dateToString2(date: date))
-                          .padding(.top, 30)
-                          .font(.system(size: 25))
-                      
-                      // group games by date
-                      VStack{
-                          // find every game that matches the date
-                          ForEach(scheduleModel.selectedGames) { game in
-                              if (game.trimmedDate == date) {
-                                  ScheduleRowView(game: game)
-                              }
-                          }
-                      }
-                      .background(.white)
-                    }
+                  if scheduleModel.internetConn {
+                                                    
+                          // Drop Down Menu
+                          // Drop Down() should be implemented in another file
+                          // but scroll view reader cannot be passed as an argument
+                        if !scheduleModel.fetching {
+                            if scheduleModel.games.count <= 0 {
+                                NoGames(message: errorMessage)
+                            } else {
+                                VStack{
+                                    DropDown(scheduleModel: scheduleModel, scrollTo: $scrollTarget)
+                                    GameSchedule(scheduleModel: scheduleModel)
+                                }
+                                .padding(.vertical, 20)
+                                .id(0)
+                            }
+                              
+                        } else {
+                            // keep scrollview from collapsing
+                            Rectangle()
+                                .fill(.bar)
+                                .frame(maxWidth: .infinity, maxHeight: 0)
+                        } 
+                  }
+                  else {
+                      BadConnection()
+                  }
                 }
-                // show progress view while loading game schedule
+              // Scroll to the desired row when the @State variable changes
+              .onChange(of: scrollTarget) { target in
+                  scrollTarget = 1
+                  withAnimation {
+                      reader.scrollTo(target, anchor: .top)
+                  }
+              }
                 .overlay {
                     if scheduleModel.fetching {
-                        ProgressView("Fetching data, please wait...")
-                            .progressViewStyle(CircularProgressViewStyle(tint: .accentColor))
+                        LoadingIndicator(animation: .circleTrim, color: .blue, size: .medium, speed: .normal)
                     }
                 }
                 .animation(.default, value: scheduleModel.selectedGames)
                 .task {
                     // load content if link is valid and it was not loaded before
                     if (conf.link != "" && scheduleModel.games.count <= 0){
-                        let startDate = await scheduleModel.fetchData(conf: conf, scheduleModel: scheduleModel) // load game schedule
+                        let startDate = await scheduleModel.fetchSeasonSchedule(conf: conf) // load game schedule
                         // get all weeks in season, starting on monday ending in sunday
                         scheduleModel.seasonWeeks = convertToWeeks(start: startDate, end: conf.end)
                         // selected week set to current week; if current week is out of season selected week is set to 1
                         scheduleModel.selectedWeek = currentWeekOfSeason(weeks: scheduleModel.seasonWeeks)
-                        
-//                        scheduleModel.findGamesForWeek()
                         scheduleModel.sortGamesToWeek()
                         scheduleModel.findSelectedGames()
                     }
                 }
             }
-      }.background(.bar)
+        }
+        .background(.bar) // total V Stack background
     }
 }
 
 // Presentation of a single game
-private struct ScheduleRowView: View {
+struct GameRowView: View {
     var game: Game
+    var postSeason: Bool
     var body: some View {
-        HStack{
-            // Present both teams divided by horizontal line
-            VStack(alignment: .leading){
-                Text(game.opponent?.title ?? "Not Found")
-                    .lineLimit(1)
-                    .allowsTightening(/*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
-                    .minimumScaleFactor(0.5)
-                Divider() // horizontal divider
-                Text(game.school?.title ?? "Not Found")
-                    .lineLimit(1)
-                    .allowsTightening(/*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
-                    .minimumScaleFactor(0.5)
-                
+        
+        let resultText = game.result_text ?? "Not Found"
+        
+        VStack(alignment: .trailing, spacing: 0) {
+            if resultText.prefix(2).contains("T") && postSeason && game.result?.postscore_info != nil{
+                Text((game.result?.postscore_info)!)
+                    .padding(.top, 15)
+                    .padding(.horizontal)
             }
             
-            Divider() // vertical divider since embed in HStack
-            
-            // Check if game was already played or is just scheduled
-            if (game.result?.opponent_score == "-" && game.result?.team_score == "-") {
-                // if game is just scheduled result_text represents scheduled time
-                Text(game.result_text ?? "Not Found")
-                    .frame(maxWidth: 80)
-                    .lineLimit(1)
-                    .allowsTightening(/*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
-                    .minimumScaleFactor(0.5)
-            } else {
-                // Present Results
-                VStack(alignment: .trailing){ // use trailing in vstack to align subviews
-                    Text(game.result?.opponent_score ?? "Not Found")
-                        .frame(width: 80)
-                        .multilineTextAlignment(.center)
+            HStack{
+                // Present both teams divided by horizontal line
+                VStack(alignment: .leading){
+                    Text(game.opponent?.title ?? "Not Found")
+                        .lineLimit(1)
+                        .allowsTightening(/*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
+                        .minimumScaleFactor(0.5)
                     Divider() // horizontal divider
-                    Text(game.result?.team_score ?? "Not Found")
-                        .frame(width: 80)
-                        .multilineTextAlignment(.center)
+                    Text(game.school?.title ?? "Not Found")
+                        .lineLimit(1)
+                        .allowsTightening(/*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
+                        .minimumScaleFactor(0.5)
                 }
-                .frame(maxWidth: 80)
+                
+                Divider() // vertical divider since embed in HStack
+                
+                // Check if game was already played or is just scheduled
+                if (game.result == nil) {
+                    // if game is just scheduled result_text represents scheduled time
+                    Text(resultText)
+                        .frame(maxWidth: 80)
+                        .lineLimit(1)
+                        .allowsTightening(/*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
+                        .minimumScaleFactor(0.5)
+                } else {
+                    // Present Results
+                    VStack(alignment: .trailing){ // use trailing in vstack to align subviews
+                        Text(game.result!.opponent_score ?? "Not Found")
+                            .frame(width: 80)
+                            .multilineTextAlignment(.center)
+                        Divider() // horizontal divider
+                        Text(game.result!.team_score ?? "Not Found")
+                            .frame(width: 80)
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: 80)
+                }
             }
+            .padding()
         }
-        .padding()
     }
 }

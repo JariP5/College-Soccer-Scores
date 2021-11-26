@@ -8,11 +8,13 @@
 import Foundation
 
 class StandingsViewModel: ObservableObject {
-  @Published var teams = [Standing]()
-  @Published var fetching = false
+    @Published var teams = [Standing]()
+    @Published var fetching = true
+    @Published var internetConn = true
   
     func fetchData(link: String, standingsModel: StandingsViewModel) {
         fetching = true
+        internetConn = true
         guard let url = URL(string: "https://" + link + "/standings.aspx?path=msoc") else {return}
         Task{
             do {
@@ -20,7 +22,8 @@ class StandingsViewModel: ObservableObject {
                 self.fetching = false
             } catch {
                 print("Request failed with error: \(error)")
-                fetching = false
+                self.fetching = false
+                self.internetConn = false
             }
         }
     }

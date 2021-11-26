@@ -11,7 +11,7 @@ struct ConferencesRow: View {
 
     // usually including three conferences
     // if last row might be one or two
-    var confs = [Conference]()
+    var confs: [Conference]
     
     var body: some View {
 

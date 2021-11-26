@@ -10,110 +10,65 @@ import NavigationStack
 
 struct DivisionNavigation: View {
     
-    var div: DivisionStruct // Data of Division
-    @State var isHide = false // used to hide top of screen when scroll view is higher than certain poiint
-    // top edge value
+    @State var isHide = false // used to hide top of screen when scroll view is higher than certain point
     @State var top = UIApplication.shared.windows.first?.safeAreaInsets.top
-    @State var current = "Conferences" // variable to keep track of active tab, starting on conference
-    @Namespace var animation // animation to switch between view through tap bar
-    @State private var selectedGender: Gender = .men // selected gender
-    @StateObject var menRankingModel = RankingsViewModel("https://unitedsoccercoaches.org/rankings/college-rankings/ncaa-di-men/")
-    @StateObject var womenRankingModel = RankingsViewModel("https://unitedsoccercoaches.org/rankings/college-rankings/ncaa-di-women/")
+    @State var current = stringConf // variable to keep track of active tab, starting on conference
+    @State var selectedGender: Gender = .men
+    
+    // How can I get the URL in their
+    @StateObject var menRankingModel: RankingsViewModel
+    @StateObject var womenRankingModel: RankingsViewModel
+    
+    var division: DivisionStruct // Data of Division
+    
+    init (_ division: DivisionStruct) {
+        self.division = division
+        self._menRankingModel = StateObject(wrappedValue: RankingsViewModel(division.rankingURLmen))
+        self._womenRankingModel = StateObject(wrappedValue: RankingsViewModel(division.rankingURLwomen))
+    }
     
     var body: some View {
         
         // Embed in Navigation View to be able to go back when
         // going into conferences, navigation view is messing with layout
         // of navigation link views
-//        NavigationView{
         NavigationStackView{
             VStack(spacing: 0){
-                // App Bar...
-                VStack(spacing: 22){
-                    
-                    if !isHide{
-                        Text("NCAA")
-                            .font(.largeTitle)
-                            .fontWeight(.heavy)
-                            .foregroundColor(.blue)
-                    }
 
-                    // Tab Bar...
-                    HStack(spacing: 0){
-                        TabBarButtonDivision(current: $current, headerText: "Conferences", animation: animation)
-                        TabBarButtonDivision(current: $current, headerText: "Rankings", animation: animation)
-                        TabBarButtonDivision(current: $current, headerText: "Championship", animation: animation)
-                    }
-                    .padding(.horizontal)
-                }
-                .background(Color.white)
-                
-                // Picker to Choose between men's and women's soccer
-                // same picker on each view of division navigation
-                Picker("Choose", selection: $selectedGender){
-                    ForEach(Gender.allCases, id: \.self){
-                        Text($0.rawValue)
-                    }
-                }
-                .pickerStyle(SegmentedPickerStyle())
-                .padding(.horizontal, 70)
-                .padding(.vertical, 20)
-                .background(.yellow)
+                AppBar(title: "NCAA", isHide: isHide, selectedGender: $selectedGender, current: $current, headers: [stringConf, stringRanking, stringChamp])
                 
                 // Content...
                 ScrollView(.vertical, showsIndicators: false) {
                 
                     VStack(spacing: 0){
                         
-                        // geometry reader for getting for location values...
-                        GeometryReader{reader -> AnyView in
-                            
-                            let yAxis = reader.frame(in: .global).minY
-            
-                            // logic simple if goes below zero hide nav bar
-                            // above zeroshow nav bar...
-                            
-                            if (yAxis < 0  && !isHide) {
-                                DispatchQueue.main.async {
-                                    withAnimation{isHide = true}
-                                }
-                            }
-                            
-                            if (yAxis > 0 && isHide) {
-                                DispatchQueue.main.async {
-                                    withAnimation{isHide = false}
-                                }
-                            }
-                            
-                            return AnyView(
-                                Text("")
-                                    .frame(width: 0, height: 0)
-                            )
-                        }
-                        .frame(width: 0, height: 0)
+                        // geometry reader for getting location values...
+                        GeoReader(isHide: $isHide)
                         
                         // Content
                         switch current{
-                            case "Conferences":
+                            case stringConf:
                             
                             if selectedGender == .men {
-                                Division(conf: div.men, amountOfRows: Int(ceil(Double(div.men.count) / 3.0)))
+                                let rows = Int(ceil(Double(division.men.count) / 3.0))
+                                Division(conf: division.men, rows: rows)
                             } else {
-                                Division(conf: div.women, amountOfRows: Int(ceil(Double(div.women.count) / 3.0)))
+                                let rows = Int(ceil(Double(division.women.count) / 3.0))
+                                Division(conf: division.women, rows: rows)
                             }
                                 
-                            case "Rankings":
+                            case stringRanking:
                             if selectedGender == .men {
-                                Rankings(viewModel: menRankingModel, name: div.name)
+                                Rankings(viewModel: menRankingModel, name: division.name)
                             } else {
-                                Rankings(viewModel: womenRankingModel, name: div.name)
+                                Rankings(viewModel: womenRankingModel, name: division.name)
                             }
                                 
-                            case "Championship":
+                            case stringChamp:
                             if selectedGender == .men {
-                                DivisionChampionship(url: div.championshipURLmen)
+                                DivisionChampionship(url: division.championshipURLmen)
                             } else {
-                                DivisionChampionship(url: div.championshipURLwomen)
+                                DivisionChampionship(url: division.championshipURLwomen)
                             }
 
                             default:
@@ -124,12 +79,5 @@ struct DivisionNavigation: View {
                 .background(Color.yellow) // background for scrollView
             }
         }
-    }
-}
-
-
-struct DivisionNavigation_Previews: PreviewProvider {
-    static var previews: some View {
-        DivisionNavigation(div: D1)
     }
 }

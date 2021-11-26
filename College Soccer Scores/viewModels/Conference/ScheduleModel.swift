@@ -16,20 +16,24 @@ class ScheduleViewModel: ObservableObject {
     @Published var selectedGames = [Game]() // games for selected week
     @Published var seasonWeeks: [Week] = [Week]() // all weeks of the season --- I think @ Published can be removed
     @Published var selectedWeek = Week() // selected week by user
-    @Published var fetching = false
-    var gamesToWeek: [Week:[Game]] = [:]
-    var confTournament = [Game]()
+    @Published var fetching = true
+    @Published var internetConn = true
+    @Published var confTourn = [Game]()
+    var gamesToWeek: [Week:[Game]] = [:] // is not gonna change 
+    
   
     // get the games from the api
     // needs internet connection
-    func fetchData(conf: Conference, scheduleModel: ScheduleViewModel) async -> Date{
+    func fetchSeasonSchedule(conf: Conference) async -> Date{
         fetching = true
+        internetConn = true
         do {
-            self.games = try await fetchSchedule(conf: conf, scheduleModel: scheduleModel)
-            fetching = false
+            self.games = try await fetchSchedule(conf: conf, start: conf.start, end: conf.end)
+            self.fetching = false
         } catch {
             print("Request failed with error: \(error)")
-            fetching = false
+            self.internetConn = false
+            self.fetching = false
         }
         
         if games.count > 0 {
@@ -42,6 +46,7 @@ class ScheduleViewModel: ObservableObject {
     // METHOD 1 to find the games for the selected Week
     // the user can select a week in each conference
     // find the games that are being played in that week
+    // CURRENTLY NOT USED
     func findGamesForWeek() {
         var selectedGames = [Game]()
 
@@ -58,14 +63,13 @@ class ScheduleViewModel: ObservableObject {
     // after fetching all games use a dictionary to sort an array of games to a week
     func sortGamesToWeek() {
         var counter = 0
-        gamesToWeek = [:]
         
+        // normal schedule
+        gamesToWeek = [:]
         for week in self.seasonWeeks {
             var gamesInWeek = [Game]()
-            while (counter < games.count) {
-                if (self.games[counter].trimmedDate <= week.endDate) {
-                    gamesInWeek.append(games[counter])
-                } // else if greater than end date of conference and smaller than date of ncaa start -> add into conference tournament
+            while (counter < games.count && self.games[counter].trimmedDate <= week.endDate) {
+                gamesInWeek.append(self.games[counter])
                 counter = counter + 1;
             }
             gamesToWeek[week] = gamesInWeek

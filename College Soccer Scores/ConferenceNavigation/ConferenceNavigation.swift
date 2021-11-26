@@ -10,8 +10,6 @@ import NavigationStack
 
 struct ConferenceNavigation: View {
     
-    var conf: Conference
-    
     // top edge value
     @State var top = UIApplication.shared.windows.first?.safeAreaInsets.top
     @State var current = "Schedule" // active tab bar
@@ -19,6 +17,13 @@ struct ConferenceNavigation: View {
     // stores and downloads data for standings and schedule, keeps data as long navigating in conference
     @StateObject var scheduleModel = ScheduleViewModel()
     @StateObject var standingsModel = StandingsViewModel()
+    @StateObject var confTournModel = ConfTournViewModel()
+    
+    @State var isFavConf = false
+    @EnvironmentObject var favModel: FavoritesModel
+    
+    var conf: Conference
+
     
     var body: some View {
         VStack(spacing: 0){
@@ -42,8 +47,18 @@ struct ConferenceNavigation: View {
                        .aspectRatio(contentMode: .fit)
                        .frame(minWidth: 0, maxWidth: 150, minHeight: 0, maxHeight: 60)
                     Spacer()
-                    Text("")
-                        .frame(width: 30)
+                    
+                    Button(action: {
+                        if isFavConf {
+                            favModel.remove(conf: conf)
+                        } else {
+                            favModel.append(conf: conf)
+                        }
+                        isFavConf.toggle()
+                    } ){
+                        Image(systemName: isFavConf ? "star.fill" : "star")
+                    }
+                    .frame(width: 30)
                 }
                 .padding(.horizontal)
 
@@ -56,7 +71,7 @@ struct ConferenceNavigation: View {
                 .padding(.horizontal)
                 
             }
-            .padding(.top, top)
+            .padding(.top, 15)
             .background(Color.white)
             
             
@@ -69,12 +84,14 @@ struct ConferenceNavigation: View {
                     ConferenceStandings(viewModel: standingsModel, conf: conf)
                     
                 case "Championship":
-                    Text("Championship")
-                        .background(.yellow)
+                    ConferenceChampionship(confTournModel: confTournModel, conf: conf)
                     
                 default:
                     Text("Not ready yet")
             }
+        }
+        .onAppear {
+            isFavConf = favModel.isFavorized(conf: conf)
         }
     }
 }

@@ -26,7 +26,12 @@ func currentWeekOfSeason(weeks: [Week]) -> Week {
             return week
         }
     }
-    return weeks[0]
+    if weeks.count > 0 {
+        return weeks[0]
+    } else {
+        return Week(startDate: createDefaultDate(), endDate: createDefaultDate(), weekOfSeason: 1, weekOfTheYear: 1)
+    }
+    
 }
 
 
@@ -34,10 +39,8 @@ func currentWeekOfSeason(weeks: [Week]) -> Week {
 // all weeks between the starting and ending string passed as arguments
 func convertToWeeks (start: Date, end: String) -> [Week]{
     
-    // covert strings to date objects
-    let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "MM/dd/yyyy"
-    let endDate = dateFormatter.date(from: end)
+    // covert strings to date object
+    let endDate = stringToDate2(dateString: end)
     
     // initalize empty week array
     var weeks = [Week]()
@@ -57,7 +60,7 @@ func convertToWeeks (start: Date, end: String) -> [Week]{
     var counter = 1
     
     // loop over all weeks until end date is reached
-    while (monday! < endDate!) {
+    while (monday! < endDate) {
         // get the sunday of that week
         let sunday = calendar.date(byAdding: .day, value: +6, to: monday!)
         
@@ -68,8 +71,8 @@ func convertToWeeks (start: Date, end: String) -> [Week]{
         
         // add week to the end of array
         // let last week end in the last date
-        if (sunday! > endDate!) {
-            weeks.append(Week(startDate: monday!, endDate: endDate!, weekOfSeason: counter, weekOfTheYear: weekOfTheYear!))
+        if (sunday! > endDate) {
+            weeks.append(Week(startDate: monday!, endDate: endDate, weekOfSeason: counter, weekOfTheYear: weekOfTheYear!))
         } else {
             weeks.append(Week(startDate: monday!, endDate: sunday!, weekOfSeason: counter, weekOfTheYear: weekOfTheYear!))
         }
@@ -117,9 +120,9 @@ func dateToString2 (date: Date) -> String {
 func createDefaultDate() -> Date{
     // Specify date components
     var dateComponents = DateComponents()
-    dateComponents.year = 1980
-    dateComponents.month = 7
-    dateComponents.day = 11
+    dateComponents.year = 2021
+    dateComponents.month = 09
+    dateComponents.day = 01
 
     // Create date from components
     let userCalendar = Calendar(identifier: .gregorian) // since the components above (like year 1980) are for Gregorian
@@ -127,4 +130,30 @@ func createDefaultDate() -> Date{
     return someDateTime!
 }
 
+// Helper Methods
+// make the string from the date property of game structure to a Date
+// remove time stamp from date of the game
+// to be able to group games together if they have the same date
+
+func stringToDate1 (dateString: String) -> Date {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+    let date = dateFormatter.date(from: dateString) ?? createDefaultDate()
+    let trimmedDate = removeTimeStamp(fromDate: date)
+    return trimmedDate
+}
+
+func stringToDate2 (dateString: String) -> Date {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "MM/dd/yyyy"
+    let date = dateFormatter.date(from: dateString) ?? createDefaultDate()
+    return date
+}
+
+func removeTimeStamp(fromDate: Date) -> Date {
+    guard let date = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month, .day], from: fromDate)) else {
+        fatalError("Failed to strip time from Date object")
+    }
+    return date
+}
 

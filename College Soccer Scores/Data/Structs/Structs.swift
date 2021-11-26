@@ -21,7 +21,7 @@ struct DivisionStruct {
 }
 
 
-struct Conference {
+struct Conference: Equatable, Codable {
     var link: String // for schedule api
     // parameters of api for both genders
     // set a default value since not all conferences have men and women soccer
@@ -29,9 +29,12 @@ struct Conference {
     var school_id: String
     var start: String
     var end: String
-    // for fetching schedule
+    // for fetching standings
     var standings: String
-    var name: String // normal name
+    var name: String // normal name Example: "SSC"
+    var confTournEnd: Date
+    var division: DivisionEnum
+    var gender: Gender
 }
 
 struct Ranking: Identifiable, Equatable, Hashable {
@@ -57,7 +60,13 @@ struct Week: Hashable {
     var weekOfTheYear: Int = 1
 }
 
-enum Gender: String, CaseIterable{
+enum Gender: String, CaseIterable, Codable{
     case men = "Men"
     case women = "Women"
+}
+
+enum DivisionEnum: String, CaseIterable, Codable {
+    case DI = "D1"
+    case DII = "D2"
+    case DIII = "D3"
 }

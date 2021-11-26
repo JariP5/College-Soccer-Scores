@@ -10,10 +10,11 @@ import SwiftSoup
 
 // use api to get all the games of a conference in an array
 // data is in json format
-@MainActor func fetchSchedule(conf: Conference, scheduleModel: ScheduleViewModel) async throws -> [Game]{
+@MainActor func fetchSchedule(conf: Conference, start: String, end: String) async throws -> [Game]{
     
     // change date to the end of the day to include all game on the conf.end date
-    let extendedEnd = conf.end + " 23:59:59"
+//    let extendedEnd = dateToString1(date: conf.confTournEnd) + " 23:59:59"
+    let extendedEnd = end + " 23:59:59"
     
     // set up url
     var components = URLComponents()
@@ -24,7 +25,7 @@ import SwiftSoup
         // api parameters
         // school_id == 0 means that all schools are included
         components.queryItems = [
-            URLQueryItem(name: "start", value: conf.start),
+            URLQueryItem(name: "start", value: start),
             URLQueryItem(name: "end", value: extendedEnd),
             URLQueryItem(name: "sport_id", value: conf.sport_id),
             URLQueryItem(name: "school_id", value: conf.school_id)

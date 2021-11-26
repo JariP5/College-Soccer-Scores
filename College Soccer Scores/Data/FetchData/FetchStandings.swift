@@ -48,6 +48,9 @@ func readStandingsHTML(html: String) throws -> [Standing] {
             for dataPoint in data {
                 // first one is the name
                 if (counter == 0) {
+                    if (try dataPoint.text() == "") {// only applicable for NEC conference since HTML differs
+                        counter = -1
+                    }
                     name = try dataPoint.text()
                 // second one is the conference record
                 } else if (counter == 1) {
@@ -68,6 +71,9 @@ func readStandingsHTML(html: String) throws -> [Standing] {
                     }
                     // third one is the overall record
                 } else if (counter == 2) {
+                    if (try !dataPoint.text().contains("-")) { // only applicable for NEC conference since HTML differs
+                        counter = 1
+                    }
                     overallRec = try dataPoint.text()
                 }
                 counter += 1

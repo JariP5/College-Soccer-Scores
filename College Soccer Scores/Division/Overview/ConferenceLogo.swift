@@ -24,7 +24,7 @@ struct ConferenceLogo: View {
                     Image(conf.name)
                        .resizable()
                        .shadow(radius: 10)
-                       .aspectRatio(contentMode: .fit)
+                       .scaledToFit()
                        .frame(minWidth: 0, maxWidth: 70, minHeight: 0, maxHeight: 70)
                 }
 

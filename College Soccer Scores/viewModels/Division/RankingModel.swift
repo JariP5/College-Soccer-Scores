@@ -12,7 +12,8 @@ import Foundation
 class RankingsViewModel: ObservableObject {
     @Published var rankings = [Ranking]() // all team rankings
     @Published var fetching = false // used in RankingsView to show loading indicator
-    var url : String
+    @Published var internetConn = true
+    var url: String
     
     init(_ url: String) {
         self.url = url
@@ -20,6 +21,7 @@ class RankingsViewModel: ObservableObject {
   
     func fetchData() {
         fetching = true
+        internetConn = true
         guard let url = URL(string: url) else {return}
         Task{
             do {
@@ -27,7 +29,8 @@ class RankingsViewModel: ObservableObject {
                 self.fetching = false
             } catch {
                 print("Request failed with error: \(error)")
-                fetching = false
+                self.fetching = false
+                self.internetConn = false
             }
         }
     }
