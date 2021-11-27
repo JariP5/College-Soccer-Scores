@@ -16,6 +16,7 @@
 // 15. Talk to lawyers, conferences, api provider etc.
 // 18. What if Rankings are not out yet, same for division championship page and conference standings
 // 19. Add swipe gesttures to switch screens; sow basic tab view page when clicked
+// 20. Favorites are added but only display in row right after adding, since view is not reloaded
 
 // RESEARCH ON HOW TO GET DATA FOR DIFFERENT CONFERENCES
 //API

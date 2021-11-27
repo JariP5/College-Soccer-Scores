@@ -11,6 +11,6 @@ struct NoGames: View {
     var message: String
     var body: some View {
         Text(message)
-            .frame(width: UIScreen.screenWidth, height: UIScreen.screenHeight - 344)
+            .frame(width: UIScreen.screenWidth, height: UIScreen.screenHeight - heightAppBarAndTabView)
     }
 }

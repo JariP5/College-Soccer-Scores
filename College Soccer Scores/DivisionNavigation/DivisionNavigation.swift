@@ -10,9 +10,11 @@ import NavigationStack
 
 struct DivisionNavigation: View {
     
+    @State private var offset = CGSize.zero
     @State var isHide = false // used to hide top of screen when scroll view is higher than certain point
     @State var current = stringConf // variable to keep track of active tab, starting on conference
     @State var selectedGender: Gender = .men
+    var tabs = [stringConf, stringRanking, stringChamp]
     
     // How can I get the URL in their
     @StateObject var menRankingModel: RankingsViewModel
@@ -34,7 +36,7 @@ struct DivisionNavigation: View {
         NavigationStackView{
             VStack(spacing: 0){
 
-                AppBar(title: division.name, isHide: isHide, selectedGender: $selectedGender, current: $current, headers: [stringConf, stringRanking, stringChamp])
+                AppBar(title: division.name, isHide: isHide, selectedGender: $selectedGender, current: $current, headers: tabs)
                 
                 // Content...
                 ScrollView(.vertical, showsIndicators: false) {
@@ -77,6 +79,42 @@ struct DivisionNavigation: View {
                 }
                 .background(Color.yellow) // background for scrollView
             }
+            .gesture(
+                DragGesture()
+                        .onChanged { gesture in
+                            self.offset = gesture.translation
+                        }
+
+                        .onEnded { value in
+                            
+                            if abs(self.offset.width) > 100 {
+                                if value.startLocation.x > 50 && value.startLocation.x < UIScreen.screenWidth - 50 {
+                                    // left swipe
+                                    var index = 0;
+                                    var searching = true
+                                    while searching && index < tabs.count{
+                                        if current == tabs[index]{
+                                            searching = false
+                                        } else {
+                                            index += 1
+                                        }
+                                    }
+                                    
+                                    if (value.startLocation.x > value.location.x) {
+                                        if index < tabs.count {
+                                            withAnimation{current = tabs[index + 1]}
+                                        }
+                                    } else {
+                                        if index > 0 {
+                                            withAnimation{current = tabs[index - 1]}
+                                        }
+                                    }
+                                }
+                            } else {
+                                self.offset = .zero
+                            }
+                        }
+            )
         }
     }
 }

@@ -17,7 +17,7 @@ struct NoFavorites: View {
                 .frame(width: 200)
             Text("No selection")
         }
-        .frame(width: UIScreen.screenWidth, height: UIScreen.screenHeight - 344)
+        .frame(width: UIScreen.screenWidth, height: UIScreen.screenHeight - heightAppBarAndTabView)
     }
 }
 

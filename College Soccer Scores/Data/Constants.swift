@@ -7,6 +7,8 @@
 
 import Foundation
 
+let heightAppBarAndTabView = 280.0
+
 let stringConf = "Conference"
 let stringRanking = "Rankings"
 let stringChamp = "Championship"

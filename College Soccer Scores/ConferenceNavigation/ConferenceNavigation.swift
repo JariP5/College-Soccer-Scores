@@ -11,14 +11,17 @@ import NavigationStack
 struct ConferenceNavigation: View {
     
     @State var current = "Schedule" // active tab bar
-    @Namespace var animation // animation to change tab
+    @State private var offset = CGSize.zero
     // stores and downloads data for standings and schedule, keeps data as long navigating in conference
     @StateObject var scheduleModel = ScheduleViewModel()
     @StateObject var standingsModel = StandingsViewModel()
     @StateObject var confTournModel = ConfTournViewModel()
     
+    var tabs = ["Schedule", "Standings", "Championship"]
+    
     @State var isFavConf = false
     @EnvironmentObject var favModel: FavoritesModel
+    @EnvironmentObject private var navigationStack: NavigationStack
     
     var conf: Conference
 
@@ -60,13 +63,7 @@ struct ConferenceNavigation: View {
                 }
                 .padding(.horizontal)
 
-                // Tab Bar...
-                HStack(spacing: 0){
-                    TabBarButtonConference(current: $current, headerText: "Schedule", animation: animation)
-                    TabBarButtonConference(current: $current, headerText: "Standings", animation: animation)
-                    TabBarButtonConference(current: $current, headerText: "Championship", animation: animation)
-                }
-                .padding(.horizontal)
+                TabBar(current: $current, headers: tabs)
                 
             }
             .padding(.top, 15)
@@ -75,13 +72,13 @@ struct ConferenceNavigation: View {
             
             // Content...
             switch current{
-                case "Schedule":
+                case tabs[0]:
                     ConferenceSchedule(scheduleModel: scheduleModel, conf: conf)
                     
-                case "Standings":
+                case tabs[1]:
                     ConferenceStandings(viewModel: standingsModel, conf: conf)
                     
-                case "Championship":
+                case tabs[2]:
                     ConferenceChampionship(confTournModel: confTournModel, conf: conf)
                     
                 default:
@@ -91,5 +88,43 @@ struct ConferenceNavigation: View {
         .onAppear {
             isFavConf = favModel.isFavorized(conf: conf)
         }
+        .gesture(
+            DragGesture()
+                    .onChanged { gesture in
+                        self.offset = gesture.translation
+                    }
+
+                    .onEnded { value in
+                        
+                        if abs(self.offset.width) > 100 {
+                            if value.startLocation.x < 20 {
+                                self.navigationStack.pop()
+                            } else if value.startLocation.x > 50 && value.startLocation.x < UIScreen.screenWidth - 50 {
+                                // left swipe
+                                var index = 0;
+                                var searching = true
+                                while searching && index < tabs.count{
+                                    if current == tabs[index]{
+                                        searching = false
+                                    } else {
+                                        index += 1
+                                    }
+                                }
+                                
+                                if (value.startLocation.x > value.location.x) {
+                                    if index < tabs.count {
+                                        withAnimation{current = tabs[index + 1]}
+                                    }
+                                } else {
+                                    if index > 0 {
+                                        withAnimation{current = tabs[index - 1]}
+                                    }
+                                }
+                            }
+                        } else {
+                            self.offset = .zero
+                        }
+                    }
+        )
     }
 }

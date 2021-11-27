@@ -16,6 +16,6 @@ struct BadConnection: View {
                 .scaledToFit()
                 .frame(width: 200)
         }
-        .frame(width: UIScreen.screenWidth, height: UIScreen.screenHeight - 344)
+        .frame(width: UIScreen.screenWidth, height: UIScreen.screenHeight - heightAppBarAndTabView)
     }
 }
