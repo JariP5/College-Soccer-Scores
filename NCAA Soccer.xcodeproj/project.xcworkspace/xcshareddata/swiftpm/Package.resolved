@@ -1,0 +1,34 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "SwiftfulLoadingIndicators",
+        "repositoryURL": "https://github.com/SwiftfulThinking/SwiftfulLoadingIndicators.git",
+        "state": {
+          "branch": null,
+          "revision": "85858c0246dcd781228301f9928519f75ce89758",
+          "version": "0.0.4"
+        }
+      },
+      {
+        "package": "SwiftSoup",
+        "repositoryURL": "https://github.com/scinfu/SwiftSoup",
+        "state": {
+          "branch": "master",
+          "revision": "02c63b7be50bda384f22c56c64d347231754a07e",
+          "version": null
+        }
+      },
+      {
+        "package": "NavigationStack",
+        "repositoryURL": "https://github.com/matteopuc/swiftui-navigation-stack.git",
+        "state": {
+          "branch": "develop",
+          "revision": "d9019a71a244edc15ff4ad8826daa5e78579b6bf",
+          "version": null
+        }
+      }
+    ]
+  },
+  "version": 1
+}
