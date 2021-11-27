@@ -11,7 +11,6 @@ import NavigationStack
 struct DivisionNavigation: View {
     
     @State var isHide = false // used to hide top of screen when scroll view is higher than certain point
-    @State var top = UIApplication.shared.windows.first?.safeAreaInsets.top
     @State var current = stringConf // variable to keep track of active tab, starting on conference
     @State var selectedGender: Gender = .men
     
@@ -35,7 +34,7 @@ struct DivisionNavigation: View {
         NavigationStackView{
             VStack(spacing: 0){
 
-                AppBar(title: "NCAA", isHide: isHide, selectedGender: $selectedGender, current: $current, headers: [stringConf, stringRanking, stringChamp])
+                AppBar(title: division.name, isHide: isHide, selectedGender: $selectedGender, current: $current, headers: [stringConf, stringRanking, stringChamp])
                 
                 // Content...
                 ScrollView(.vertical, showsIndicators: false) {

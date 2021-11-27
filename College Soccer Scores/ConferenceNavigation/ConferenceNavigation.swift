@@ -10,8 +10,6 @@ import NavigationStack
 
 struct ConferenceNavigation: View {
     
-    // top edge value
-    @State var top = UIApplication.shared.windows.first?.safeAreaInsets.top
     @State var current = "Schedule" // active tab bar
     @Namespace var animation // animation to change tab
     // stores and downloads data for standings and schedule, keeps data as long navigating in conference
