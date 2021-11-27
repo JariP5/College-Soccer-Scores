@@ -73,7 +73,7 @@
 		077527E926ECD93400B9C5AC /* TabBarButtonDivision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarButtonDivision.swift; sourceTree = "<group>"; };
 		077791B1272F4DA20059192F /* ConferenceSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConferenceSchedule.swift; sourceTree = "<group>"; };
 		077C0D18274F30D0001E91B4 /* FavoritesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesView.swift; sourceTree = "<group>"; };
-		078D497B26E9041E00052FA2 /* College Soccer Scores.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "College Soccer Scores.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		078D497B26E9041E00052FA2 /* NCAA Soccer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "NCAA Soccer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		078D497E26E9041E00052FA2 /* College_Soccer_ScoresApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = College_Soccer_ScoresApp.swift; sourceTree = "<group>"; };
 		078D498026E9041E00052FA2 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		078D498226E9042000052FA2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -208,7 +208,7 @@
 		078D497C26E9041E00052FA2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				078D497B26E9041E00052FA2 /* College Soccer Scores.app */,
+				078D497B26E9041E00052FA2 /* NCAA Soccer.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -343,9 +343,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		078D497A26E9041E00052FA2 /* College Soccer Scores */ = {
+		078D497A26E9041E00052FA2 /* NCAA Soccer */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 078D49A026E9042000052FA2 /* Build configuration list for PBXNativeTarget "College Soccer Scores" */;
+			buildConfigurationList = 078D49A026E9042000052FA2 /* Build configuration list for PBXNativeTarget "NCAA Soccer" */;
 			buildPhases = (
 				078D497726E9041E00052FA2 /* Sources */,
 				078D497826E9041E00052FA2 /* Frameworks */,
@@ -355,14 +355,14 @@
 			);
 			dependencies = (
 			);
-			name = "College Soccer Scores";
+			name = "NCAA Soccer";
 			packageProductDependencies = (
 				0726090C274A024500FD64E7 /* NavigationStack */,
 				0726090F274A024E00FD64E7 /* SwiftSoup */,
 				0796F741274DE81400A876A1 /* SwiftfulLoadingIndicators */,
 			);
 			productName = "College Soccer Scores";
-			productReference = 078D497B26E9041E00052FA2 /* College Soccer Scores.app */;
+			productReference = 078D497B26E9041E00052FA2 /* NCAA Soccer.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -397,7 +397,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				078D497A26E9041E00052FA2 /* College Soccer Scores */,
+				078D497A26E9041E00052FA2 /* NCAA Soccer */,
 			);
 		};
 /* End PBXProject section */
@@ -603,7 +603,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.JariPolm.College-Soccer-Scores";
-				PRODUCT_NAME = "College Soccer Scores";
+				PRODUCT_NAME = "NCAA Soccer";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -627,7 +627,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.JariPolm.College-Soccer-Scores";
-				PRODUCT_NAME = "College Soccer Scores";
+				PRODUCT_NAME = "NCAA Soccer";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -646,7 +646,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		078D49A026E9042000052FA2 /* Build configuration list for PBXNativeTarget "College Soccer Scores" */ = {
+		078D49A026E9042000052FA2 /* Build configuration list for PBXNativeTarget "NCAA Soccer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				078D49A126E9042000052FA2 /* Debug */,
