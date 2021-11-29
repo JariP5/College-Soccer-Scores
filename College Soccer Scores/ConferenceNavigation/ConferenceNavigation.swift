@@ -11,17 +11,18 @@ import NavigationStack
 struct ConferenceNavigation: View {
     
     @State var current = "Schedule" // active tab bar
-    @State private var offset = CGSize.zero
     // stores and downloads data for standings and schedule, keeps data as long navigating in conference
     @StateObject var scheduleModel = ScheduleViewModel()
     @StateObject var standingsModel = StandingsViewModel()
     @StateObject var confTournModel = ConfTournViewModel()
     
+    @State var scrollTarget = 1 // used to programmtically scroll scrollview
+    
     var tabs = ["Schedule", "Standings", "Championship"]
     
     @State var isFavConf = false
-    @EnvironmentObject var favModel: FavoritesModel
-    @EnvironmentObject private var navigationStack: NavigationStack
+    @State var selectedPage = 0
+    @EnvironmentObject var favModel: FavoritesModel // used
     
     var conf: Conference
 
@@ -29,7 +30,7 @@ struct ConferenceNavigation: View {
     var body: some View {
         VStack(spacing: 0){
             // App Bar...
-            VStack(spacing: 22){
+            VStack(spacing: 0){
                 HStack{
                     
                     // back button
@@ -56,75 +57,88 @@ struct ConferenceNavigation: View {
                             favModel.append(conf: conf)
                         }
                         isFavConf.toggle()
-                    } ){
+                    }){
                         Image(systemName: isFavConf ? "star.fill" : "star")
                     }
                     .frame(width: 30)
                 }
                 .padding(.horizontal)
+                .padding(.bottom)
 
-                TabBar(current: $current, headers: tabs)
-                
+                TabBar(current: $current, headers: tabs, selectedPage: $selectedPage)
             }
             .padding(.top, 15)
             .background(Color.white)
             
-            
-            // Content...
-            switch current{
-                case tabs[0]:
-                    ConferenceSchedule(scheduleModel: scheduleModel, conf: conf)
-                    
-                case tabs[1]:
-                    ConferenceStandings(viewModel: standingsModel, conf: conf)
-                    
-                case tabs[2]:
-                    ConferenceChampionship(confTournModel: confTournModel, conf: conf)
-                    
-                default:
-                    Text("Not ready yet")
+            // Page View
+            TabView (selection: $selectedPage){
+                ZStack (alignment: .leading){
+                    ScrollViewReader { reader in
+                        ScrollView(.vertical, showsIndicators: false) {
+                            ConferenceSchedule(scheduleModel: scheduleModel, conf: conf, scrollTarget: $scrollTarget)
+                                .id(0) // scroll to position at top of view
+                        }
+                        // Scroll to the desired row when scrollTarget changes
+                        .onChange(of: scrollTarget) { target in
+                            scrollTarget = 1
+                            withAnimation {
+                                reader.scrollTo(target, anchor: .top)
+                            }
+                        }
+                    }
+                    DragContainer()
+                }.tag(0)
+                ZStack (alignment: .leading){
+                    ScrollView(.vertical, showsIndicators: false) {
+                        ConferenceStandings(viewModel: standingsModel, conf: conf)
+                    }
+                    DragContainer()
+                }.tag(1)
+                ZStack (alignment: .leading){
+                    ScrollView(.vertical, showsIndicators: false) {
+                        ConferenceChampionship(confTournModel: confTournModel, conf: conf)
+                    }
+                    DragContainer()
+                }.tag(2)
+            }
+            .background(.bar)
+            .frame(width: UIScreen.screenWidth)
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            .onChange(of: selectedPage) { newIdx in
+                withAnimation{current = tabs[newIdx]}
             }
         }
         .onAppear {
+            // check if current conference is favorized by user
             isFavConf = favModel.isFavorized(conf: conf)
         }
-        .gesture(
-            DragGesture()
+    }
+}
+
+private struct DragContainer: View {
+    @State private var offset = CGSize.zero
+    @EnvironmentObject private var navigationStack: NavigationStack
+    var body: some View {
+        // invisble rectangle overlaying scrollview
+        // to be able swipe back and pop view
+        Rectangle()
+            .fill(.white)
+            .opacity(0.001)
+            .frame(idealWidth: 20, maxWidth: 20, maxHeight: .infinity)
+            .gesture(
+                DragGesture()
                     .onChanged { gesture in
                         self.offset = gesture.translation
                     }
-
                     .onEnded { value in
-                        
-                        if abs(self.offset.width) > 100 {
-                            if value.startLocation.x < 20 {
+                        if abs(self.offset.width) > 50 {
+                            if value.startLocation.x <= 20 {
                                 self.navigationStack.pop()
-                            } else if value.startLocation.x > 50 && value.startLocation.x < UIScreen.screenWidth - 50 {
-                                // left swipe
-                                var index = 0;
-                                var searching = true
-                                while searching && index < tabs.count{
-                                    if current == tabs[index]{
-                                        searching = false
-                                    } else {
-                                        index += 1
-                                    }
-                                }
-                                
-                                if (value.startLocation.x > value.location.x) {
-                                    if index < tabs.count {
-                                        withAnimation{current = tabs[index + 1]}
-                                    }
-                                } else {
-                                    if index > 0 {
-                                        withAnimation{current = tabs[index - 1]}
-                                    }
-                                }
                             }
                         } else {
                             self.offset = .zero
                         }
                     }
-        )
+            )
     }
 }

@@ -30,8 +30,6 @@ struct DropDown: View {
                     self.expand.toggle() // switch the expand value between false and true
                 }
                 .frame(maxWidth: .infinity)
-                // id used to be able to scroll up programmatically
-                // to this specififc point
 
                 // Show the dates of the active week
                 Text(dateToString1(date: scheduleModel.selectedWeek.startDate) + " - " + dateToString1(date: scheduleModel.selectedWeek.endDate))
@@ -53,7 +51,7 @@ struct DropDown: View {
                     scheduleModel.selectedWeek = week
                     // then find the games for that week
                     scheduleModel.findGamesForWeek()
-                    scrollTo = 0
+                    withAnimation{scrollTo = 0} // when new week is selected, scroll up to top
                 }) {
                     // Show all weeks of the season with its dates
                     VStack{

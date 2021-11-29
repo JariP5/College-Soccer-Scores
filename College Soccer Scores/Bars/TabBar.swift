@@ -9,14 +9,17 @@ import SwiftUI
 
 struct TabBar: View {
     @Binding var current: String
-    @Namespace var animation
     var headers: [String]
+    @Binding var selectedPage: Int
+    @Namespace var animation // for some reason needs to be passed into view to work
 
     var body: some View {
         // Tab Bar...
         HStack(spacing: 0){
-            ForEach(headers, id: \.self) { header in
-                TabBarButtonDivision(current: $current, headerText: header, animation: animation)
+            
+            // use for each enumarted
+            ForEach(Array(headers.enumerated()), id: \.element) { index, header in
+                TabBarButton(current: $current, header: header, animation: animation, selectedPage: $selectedPage, index: index)
             }
         }
         .padding(.horizontal)

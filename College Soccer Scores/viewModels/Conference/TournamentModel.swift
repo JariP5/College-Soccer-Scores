@@ -27,11 +27,6 @@ class ConfTournViewModel: ObservableObject {
     }
 }
 
-func addOneDay(stringDate: String) -> String {
-    let calendar = Calendar.current
-    var date = stringToDate2(dateString: stringDate)
-    date = calendar.date(byAdding: .day, value: 1, to: date) ?? createDefaultDate()
-    return dateToString1(date: date)
-}
+
 
 

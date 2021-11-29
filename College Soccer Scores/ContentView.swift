@@ -6,10 +6,8 @@
 //
 
 import SwiftUI
-import NavigationStack
 
 struct ContentView: View {
-    
     var body: some View {
         TabView{
             DivisionNavigation(D1)
@@ -39,8 +37,6 @@ struct ContentView: View {
         .onAppear{UITabBar.appearance().backgroundColor = .white}
     }
 }
-
-
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {

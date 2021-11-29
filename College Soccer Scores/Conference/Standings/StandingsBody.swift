@@ -41,3 +41,48 @@ struct StandingsBody: View {
     }
 }
 
+// Present a row in the standings meaning one team
+private struct StandingsRowView: View {
+    
+  var team: Standing
+  
+  var body: some View {
+      
+      HStack{
+          // display team position
+          // if team position not greater than 0 it can be assumed to be a regional header
+          if (team.position > 0){
+              Text("\(team.position)")
+                  .fontWeight(.bold)
+                  .frame(width: 20)
+          } else {
+              Text("")
+                  .frame(width: 20)
+          }
+
+          // team name
+          Text(team.name)
+              .frame(maxWidth: .infinity, alignment: .leading)
+              .allowsTightening(/*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
+              .minimumScaleFactor(0.3)
+              .lineLimit(2)
+          
+          // present team points
+          // if points smaller than 0 just present points as a header
+          if (team.points >= 0) {
+              Text("\(team.points)")
+                  .frame(width: 50)
+          } else {
+              Text("Points")
+                  .frame(width: 50)
+          }
+          
+          Text(team.conferenceRecord)
+              .frame(width: 70)
+          Text(team.overallRecord)
+              .frame(width: 70)
+      }
+      .padding(.vertical, 5)
+      .padding(.horizontal, 10)
+  }
+}

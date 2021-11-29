@@ -7,21 +7,26 @@
 
 import SwiftUI
 
-struct TabBarButtonDivision: View {
+struct TabBarButton: View {
     
-    // changing variable in DivisionNavigation for current tab bar
     @Binding var current : String
-    var headerText : String // current active Tab String
+    var header : String // active tab
     var animation : Namespace.ID
+    @Binding var selectedPage: Int
+    var index: Int // index of that page Ex: First tab, the page index for that tab will be 0
+
     
     var body: some View {
 
         Button(action: {
-            withAnimation{current = headerText}
-        } ){
+            withAnimation{
+                current = header
+                selectedPage = index // update page view when button is pressed
+            }
+        }){
             VStack(spacing: 5){
-                Text(headerText)
-                    .foregroundColor(current == headerText ? Color.blue : Color.black.opacity(0.3))
+                Text(header)
+                    .foregroundColor(current == header ? Color.blue : Color.black.opacity(0.3))
                     .frame(height: 35)
                     .allowsTightening(/*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
                     .minimumScaleFactor(0.3)
@@ -31,7 +36,7 @@ struct TabBarButtonDivision: View {
                         .fill(Color.clear)
                         .frame(height: 4)
                     
-                    if (current == headerText){
+                    if (current == header){
                         Rectangle()
                             .fill(Color.blue)
                             .frame(height: 4)
@@ -42,3 +47,4 @@ struct TabBarButtonDivision: View {
         }
     }
 }
+

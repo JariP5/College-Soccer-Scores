@@ -31,7 +31,6 @@ func currentWeekOfSeason(weeks: [Week]) -> Week {
     } else {
         return Week(startDate: createDefaultDate(), endDate: createDefaultDate(), weekOfSeason: 1, weekOfTheYear: 1)
     }
-    
 }
 
 
@@ -99,24 +98,6 @@ func datesInWeek(selectedGames: [Game]) -> [Date]{
     return dates
 }
 
-// convert date to string of format "MM/dd/yyyy"
-func dateToString1 (date: Date) -> String {
-    // Create Date Formatter
-    let dateFormatter = DateFormatter()
-    // Set Date Format
-    dateFormatter.dateFormat = "MM/dd/yyyy"
-    return dateFormatter.string(from: date)
-}
-
-// convert date to string of format "MM/dd/yyyy"
-func dateToString2 (date: Date) -> String {
-    // Create Date Formatter
-    let dateFormatter = DateFormatter()
-    // Set Date Format
-    dateFormatter.dateFormat = "yyyy-MM-dd"
-    return dateFormatter.string(from: date)
-}
-
 func createDefaultDate() -> Date{
     // Specify date components
     var dateComponents = DateComponents()
@@ -130,10 +111,21 @@ func createDefaultDate() -> Date{
     return someDateTime!
 }
 
-// Helper Methods
-// make the string from the date property of game structure to a Date
-// remove time stamp from date of the game
-// to be able to group games together if they have the same date
+func dateToString1 (date: Date) -> String {
+    // Create Date Formatter
+    let dateFormatter = DateFormatter()
+    // Set Date Format
+    dateFormatter.dateFormat = "MM/dd/yyyy"
+    return dateFormatter.string(from: date)
+}
+
+func dateToString2 (date: Date) -> String {
+    // Create Date Formatter
+    let dateFormatter = DateFormatter()
+    // Set Date Format
+    dateFormatter.dateFormat = "yyyy-MM-dd"
+    return dateFormatter.string(from: date)
+}
 
 func stringToDate1 (dateString: String) -> Date {
     let dateFormatter = DateFormatter()
@@ -155,5 +147,12 @@ func removeTimeStamp(fromDate: Date) -> Date {
         fatalError("Failed to strip time from Date object")
     }
     return date
+}
+
+func addOneDay(stringDate: String) -> String {
+    let calendar = Calendar.current
+    var date = stringToDate2(dateString: stringDate)
+    date = calendar.date(byAdding: .day, value: 1, to: date) ?? createDefaultDate()
+    return dateToString1(date: date)
 }
 

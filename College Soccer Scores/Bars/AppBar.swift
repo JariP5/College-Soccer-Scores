@@ -10,24 +10,23 @@ import SwiftUI
 struct AppBar: View {
     
     var title: String
-    var isHide: Bool
     @Binding var selectedGender: Gender
     @Binding var current: String
     var headers: [String]
+    @Binding var selectedPage: Int
+
     
     var body: some View {
         // App Bar...
         VStack(spacing: 0){
             
-            if !isHide{
-                Text(title)
-                    .font(.title)
-                    .fontWeight(.heavy)
-                    .foregroundColor(.blue)
-                    .padding(.vertical, 15)
-            }
+            Text(title)
+                .font(.title)
+                .fontWeight(.heavy)
+                .foregroundColor(.blue)
+                .padding(.vertical, 15)
 
-            TabBar(current: $current, headers: headers)
+            TabBar(current: $current, headers: headers, selectedPage: $selectedPage)
             
         }
         .background(Color.white)

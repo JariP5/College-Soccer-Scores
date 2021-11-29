@@ -16,7 +16,6 @@ struct Division: View {
         VStack{
             VStack(spacing: 20){
                 
-                
                 if rows <= 0 {
                     NoFavorites()
                 } else {

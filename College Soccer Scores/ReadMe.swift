@@ -8,15 +8,21 @@
 // OVERVIEW AND NEXT STEPS FOR THE APP
 
 // 8. Insert data for api conferences for all divisions
-// 9. Create a Favorites page
 // 10. Try to find a way to include other conferences using their htmls
-// 12. Update the design, include school logos
+// 12. Include school logos
 // 13. Include security
 // 14. Test for different iphones
 // 15. Talk to lawyers, conferences, api provider etc.
 // 18. What if Rankings are not out yet, same for division championship page and conference standings
-// 19. Add swipe gesttures to switch screens; sow basic tab view page when clicked
 // 20. Favorites are added but only display in row right after adding, since view is not reloaded
+
+// Acceptable flaws in software currently
+// - NavigationStackView while slowly swiping back to previous view does not follow swipe gesture until finsihed
+// - Hiding title in App Bar using Geo Reader seems not compatible with page view
+// - Removing favorite over favorites view removes conference view and goes back to favorites view (without animation)
+// - Height of appBar + tabView change slightly for different iphones
+// - Adding favorites from division, only shows on favorites page if still space in the row until view is reinstantiated
+
 
 // RESEARCH ON HOW TO GET DATA FOR DIFFERENT CONFERENCES
 //API
@@ -57,7 +63,7 @@
 //- [ ] Peach Belt
 //- [ ] PSAC
 //D3
-//- [ ] CUNYAC
+//- [ ] CUNYAC -> Standings are not working
 //- [ ] American Rivers
 //- [ ] ASC
 //- [ ] Atlantic East
@@ -83,7 +89,7 @@
 //D1
 //- [ ] ASUN
 //- [ ] WAC
-//- [ ] SEC ()
+//- [ ] SEC
 //D2
 //- [ ] CACC
 //- [ ] ECC

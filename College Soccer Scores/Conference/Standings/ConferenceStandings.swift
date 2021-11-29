@@ -17,28 +17,38 @@ struct ConferenceStandings: View {
     
     var body: some View {
         
-        ScrollView {
-            
+        VStack {
             if viewModel.internetConn {
                 VStack{
                     
                     // present when data is loaded
                     if !viewModel.fetching {
                         // check if conference is seperated into regions
-                        if (!partedConference(teams: viewModel.teams)) {
-                           StandingsHeader()
+                        if viewModel.teams.count > 0 {
+                            VStack{
+                                // show header like points conf and overall
+                                // except if conference is seperated into regions
+                                // then the design is done in standings body itself
+                                if (!partedConference(teams: viewModel.teams)) {
+                                   StandingsHeader()
+                                }
+                                StandingsBody(viewModel: viewModel)
+                            }
+                            .background(Color.white.shadow(radius: 2))
+                        } else {
+                            NoStandings()
                         }
-                        StandingsBody(viewModel: viewModel)
+                    } else {
+                        Text("")
+                            .frame(width: UIScreen.screenWidth, height: UIScreen.screenHeight - heightAppBarAndTabView)
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .background(Color.white.shadow(radius: 2))
                 .padding(.vertical, 20)
             } else {
                 BadConnection()
             }
         }
-        .background(.bar)
         .overlay {
             if viewModel.fetching {
                 LoadingIndicator(animation: .circleTrim, color: .blue, size: .medium, speed: .normal)
@@ -53,54 +63,6 @@ struct ConferenceStandings: View {
         }
     }
 }
-
-
-// Present a row in the standings meaning one team
-struct StandingsRowView: View {
-    
-  var team: Standing
-  
-  var body: some View {
-      
-      HStack{
-          // display team position
-          // if team position not greater than 0 it can be assumed to be a regional header
-          if (team.position > 0){
-              Text("\(team.position)")
-                  .fontWeight(.bold)
-                  .frame(width: 20)
-          } else {
-              Text("")
-                  .frame(width: 20)
-          }
-
-          // team name
-          Text(team.name)
-              .frame(maxWidth: .infinity, alignment: .leading)
-              .allowsTightening(/*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
-              .minimumScaleFactor(0.3)
-              .lineLimit(2)
-          
-          // present team points
-          // if points smaller than 0 just present points as a header
-          if (team.points >= 0) {
-              Text("\(team.points)")
-                  .frame(width: 50)
-          } else {
-              Text("Points")
-                  .frame(width: 50)
-          }
-          
-          Text(team.conferenceRecord)
-              .frame(width: 70)
-          Text(team.overallRecord)
-              .frame(width: 70)
-      }
-      .padding(.vertical, 5)
-      .padding(.horizontal, 10)
-  }
-}
-
 
 // helper method for ConferenceStandings
 // Checking if conference is seperated into regions

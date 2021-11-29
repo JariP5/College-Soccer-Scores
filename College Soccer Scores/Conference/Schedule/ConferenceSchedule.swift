@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftfulLoadingIndicators
+import NavigationStack
 
 
 struct ConferenceSchedule: View {
@@ -15,84 +16,68 @@ struct ConferenceSchedule: View {
     // even when view is switched inside of the conference
     @ObservedObject var scheduleModel: ScheduleViewModel
     var conf: Conference // hold the data for the conference passed by calling view
-    @State private var scrollTarget = 1
+    @Binding var scrollTarget: Int
     let errorMessage = "Game schedule is not out yet."
+
+
+
     
     var body: some View {
-      VStack{
-          // necessary to be able to jump on scroll view
-          // to specific id
-          ScrollViewReader { reader in
-              ScrollView {
-                  
-                  if scheduleModel.internetConn {
-                                                    
-                          // Drop Down Menu
-                          // Drop Down() should be implemented in another file
-                          // but scroll view reader cannot be passed as an argument
-                        if !scheduleModel.fetching {
-                            if scheduleModel.games.count <= 0 {
-                                NoGames(message: errorMessage)
-                            } else {
-                                VStack{
-                                    DropDown(scheduleModel: scheduleModel, scrollTo: $scrollTarget)
-                                    GameSchedule(scheduleModel: scheduleModel)
-                                }
-                                .padding(.vertical, 20)
-                                .id(0)
-                            }
-                              
-                        } else {
-                            // keep scrollview from collapsing
-                            Rectangle()
-                                .fill(.bar)
-                                .frame(maxWidth: .infinity, maxHeight: 0)
-                        } 
-                  }
-                  else {
-                      BadConnection()
-                  }
-                }
-              // Scroll to the desired row when the @State variable changes
-              .onChange(of: scrollTarget) { target in
-                  scrollTarget = 1
-                  withAnimation {
-                      reader.scrollTo(target, anchor: .top)
-                  }
-              }
-                .overlay {
-                    if scheduleModel.fetching {
-                        LoadingIndicator(animation: .circleTrim, color: .blue, size: .medium, speed: .normal)
+        VStack{
+            if scheduleModel.internetConn {
+                if !scheduleModel.fetching {
+                    if scheduleModel.games.count <= 0 {
+                        NoGames(message: errorMessage)
+                    } else {
+                        VStack{
+                            DropDown(scheduleModel: scheduleModel, scrollTo: $scrollTarget)
+                            GameSchedule(scheduleModel: scheduleModel)
+                        }
+                        .padding(.vertical, 20)
                     }
-                }
-                .animation(.default, value: scheduleModel.selectedGames)
-                .task {
-                    // load content if link is valid and it was not loaded before
-                    if (conf.link != "" && scheduleModel.games.count <= 0){
-                        let startDate = await scheduleModel.fetchSeasonSchedule(conf: conf) // load game schedule
-                        // get all weeks in season, starting on monday ending in sunday
-                        scheduleModel.seasonWeeks = convertToWeeks(start: startDate, end: conf.end)
-                        // selected week set to current week; if current week is out of season selected week is set to 1
-                        scheduleModel.selectedWeek = currentWeekOfSeason(weeks: scheduleModel.seasonWeeks)
-                        scheduleModel.sortGamesToWeek()
-                        scheduleModel.findSelectedGames()
-                    }
+                } else {
+                    Text("")
+                        .frame(width: UIScreen.screenWidth, height: UIScreen.screenHeight - heightAppBarAndTabView)
                 }
             }
+            else {
+              BadConnection()
+            }
         }
-        .background(.bar) // total V Stack background
+        .overlay {
+            if scheduleModel.fetching {
+                LoadingIndicator(animation: .circleTrim, color: .blue, size: .medium, speed: .normal)
+            }
+        }
+        .animation(.default, value: scheduleModel.selectedGames)
+        .task {
+            // load content if link is valid and it was not loaded before
+            if (conf.link != "" && scheduleModel.games.count <= 0){
+                let startDate = await scheduleModel.fetchSeasonSchedule(conf: conf) // load game schedule
+                // get all weeks in season, starting on monday ending in sunday
+                scheduleModel.seasonWeeks = convertToWeeks(start: startDate, end: conf.end)
+                // selected week set to current week; if current week is out of season selected week is set to 1
+                scheduleModel.selectedWeek = currentWeekOfSeason(weeks: scheduleModel.seasonWeeks)
+                scheduleModel.sortGamesToWeek() // set up dictionary key: week, value: games
+                scheduleModel.findSelectedGames() // find games for selected week
+            }
+        }
     }
 }
 
 // Presentation of a single game
 struct GameRowView: View {
+    
     var game: Game
     var postSeason: Bool
+    
     var body: some View {
         
         let resultText = game.result_text ?? "Not Found"
         
         VStack(alignment: .trailing, spacing: 0) {
+            
+            // in case a game in the conference tournament was decided in penalties
             if resultText.prefix(2).contains("T") && postSeason && game.result?.postscore_info != nil{
                 Text((game.result?.postscore_info)!)
                     .padding(.top, 15)

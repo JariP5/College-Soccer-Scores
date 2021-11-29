@@ -10,7 +10,7 @@ import SwiftfulLoadingIndicators
 
 struct Rankings: View {
     
-    @ObservedObject var viewModel: RankingsViewModel // class to download and trck data updates
+    @ObservedObject var viewModel: RankingsViewModel
     var name: String // Example: "Division 1"
     
     var body: some View {
@@ -42,7 +42,7 @@ struct Rankings: View {
                     // loading contents, would like that to be solved differently
                         Rectangle()
                             .fill(.yellow) // same color ascolor behind the list
-                            .frame(maxWidth: .infinity, idealHeight: 400, maxHeight: 400)
+                            .frame(width: UIScreen.screenWidth, height: UIScreen.screenHeight - heightAppBarAndTabView)
                     }
                 }
                 .padding(.bottom)
@@ -51,7 +51,7 @@ struct Rankings: View {
             }
         }
         
-        // overlay is like a zstack, show progress view until download completed
+        // overlay is like a zstack, show loading view until download completed
         .overlay {
           if viewModel.fetching {
               LoadingIndicator(animation: .circleTrim, color: .blue, size: .medium, speed: .normal)
@@ -65,6 +65,7 @@ struct Rankings: View {
         }
     }
 }
+
 
 // Row of a Ranking
 private struct RankingsRowView: View {

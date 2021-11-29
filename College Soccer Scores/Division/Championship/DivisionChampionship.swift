@@ -21,7 +21,7 @@ struct DivisionChampionship: View {
                     PDFKitRepresentedView(data: champs.data!)
                         .frame(height: UIScreen.screenHeight - heightAppBarAndTabView)
                         .shadow(radius: 2)
-                } // maybe add else statement with "something went wrong" view
+                } // maybe add else statement with "something went wrong" view, data should not be nil
             } else {
                 Text("")
                     .frame(width: UIScreen.screenWidth, height: UIScreen.screenHeight - heightAppBarAndTabView)

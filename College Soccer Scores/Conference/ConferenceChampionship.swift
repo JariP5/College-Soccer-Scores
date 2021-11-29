@@ -16,63 +16,60 @@ struct ConferenceChampionship: View {
     var conf: Conference
     let errorMessage = "Tournament schedule is not out yet."
 
-    
     var body: some View {
         VStack{
-            ScrollView {
+            if confTournModel.internetConn {
                 
-                if confTournModel.internetConn {
+                // kepp scroll view from collapsing
+                Rectangle()
+                    .frame(maxWidth: .infinity, maxHeight: 0)
+                
+                if !confTournModel.fetching {
                     
-                    Rectangle()
-                        .frame(maxWidth: .infinity, maxHeight: 0)
-                    
-                    if !confTournModel.fetching {
-                        
-                        if confTournModel.games.count > 0{
-                            VStack {
-
-                                ForEach(datesInWeek(selectedGames: confTournModel.games), id: \.self) { date in
-                                    
-                                    // header of each group is the date
-                                    Text(dateToString2(date: date))
-                                        .padding(.top, 30)
-                                        .font(.system(size: 25))
-                                    
-                                    // group games by date
-                                    VStack{
-                                        // find every game that matches the date
-                                        ForEach(confTournModel.games) { game in
-                                            if (game.trimmedDate == date) {
-                                                GameRowView(game: game, postSeason: true)
-                                            }
+                    if confTournModel.games.count > 0{
+                        VStack {
+                            ForEach(datesInWeek(selectedGames: confTournModel.games), id: \.self) { date in
+                                
+                                // header of each group is the date
+                                Text(dateToString2(date: date))
+                                    .padding(.top, 30)
+                                    .font(.system(size: 25))
+                                
+                                // group games by date
+                                VStack{
+                                    // find every game that matches the date
+                                    ForEach(confTournModel.games) { game in
+                                        if (game.trimmedDate == date) {
+                                            GameRowView(game: game, postSeason: true)
                                         }
                                     }
-                                    .background(Color.white.shadow(radius: 2))
                                 }
+                                .background(Color.white.shadow(radius: 2))
                             }
-                            .padding(.bottom, 20)
-                        } else {
-                            NoGames(message: errorMessage)
                         }
+                        .padding(.bottom, 20)
+                    } else {
+                        NoGames(message: errorMessage)
                     }
                 } else {
-                    BadConnection()
+                    Text("")
+                        .frame(width: UIScreen.screenWidth, height: UIScreen.screenHeight - heightAppBarAndTabView)
                 }
-            }
-            .overlay {
-                if confTournModel.fetching {
-                    LoadingIndicator(animation: .circleTrim, color: .blue, size: .medium, speed: .normal)
-                }
-            }
-            .animation(.default, value: confTournModel.games)
-            .task {
-                // fetch data if conference link is valid and was not loadede before
-                if (conf.link != "" && confTournModel.games.count <= 0){
-                    await confTournModel.fetchTournament(conf: conf)
-                }
+            } else {
+                BadConnection()
             }
         }
-        .background(.bar)
-        .frame(maxWidth: .infinity)
+        .overlay {
+            if confTournModel.fetching {
+                LoadingIndicator(animation: .circleTrim, color: .blue, size: .medium, speed: .normal)
+            }
+        }
+        .animation(.default, value: confTournModel.games)
+        .task {
+            // fetch data if conference link is valid and was not loadede before
+            if (conf.link != "" && confTournModel.games.count <= 0){
+                await confTournModel.fetchTournament(conf: conf)
+            }
+        }
     }
 }
