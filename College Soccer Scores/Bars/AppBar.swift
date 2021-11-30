@@ -27,7 +27,6 @@ struct AppBar: View {
                 .padding(.vertical, 15)
 
             TabBar(current: $current, headers: headers, selectedPage: $selectedPage)
-            
         }
         .background(Color.white)
         

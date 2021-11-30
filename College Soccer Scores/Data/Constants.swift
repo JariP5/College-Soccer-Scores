@@ -8,7 +8,8 @@
 import Foundation
 
 let heightAppBarAndTabView = 320.0
-
+let weekDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+let monthArray = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 // -------------------------------------------------------------
 
 let D1 = DivisionStruct(rankingURLmen: rankingURLmenD1, rankingURLwomen: rankingURLwomenD1, championshipURLmen: championshipURLmenD1, championshipURLwomen: championshipURLwomenD1, name: "Division 1", men: D1_Men, women: D1_Women, championshipStartMen: championshipStartMenD1, championshipStartWomen: championshipStartWomenD1)

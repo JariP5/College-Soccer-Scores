@@ -29,22 +29,22 @@ struct ConferenceChampionship: View {
                     if confTournModel.games.count > 0{
                         VStack {
                             ForEach(datesInWeek(selectedGames: confTournModel.games), id: \.self) { date in
-                                
-                                // header of each group is the date
-                                Text(dateToString2(date: date))
-                                    .padding(.top, 30)
-                                    .font(.system(size: 25))
-                                
-                                // group games by date
-                                VStack{
+                                VStack(spacing: 0) {
+                                    
+                                    DateView(date: date)
+                                        .padding(.horizontal)
+                                        .padding(.top)
+                                    
                                     // find every game that matches the date
                                     ForEach(confTournModel.games) { game in
                                         if (game.trimmedDate == date) {
-                                            GameRowView(game: game, postSeason: true)
+                                            GameRowView(game: game, postSeason: false)
+                                                .padding()
                                         }
                                     }
                                 }
                                 .background(Color.white.shadow(radius: 2))
+                                .padding(.top, 30)
                             }
                         }
                         .padding(.bottom, 20)
