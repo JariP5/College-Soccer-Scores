@@ -80,10 +80,12 @@ struct ConferenceNavigation: View {
                         }
                         // Scroll to the desired row when scrollTarget changes
                         .onChange(of: scrollTarget) { target in
-                            scrollTarget = 1
-                            withAnimation {
+                            if scrollTarget > 0 {
+                                reader.scrollTo(target, anchor: .center)
+                            } else {
                                 reader.scrollTo(target, anchor: .top)
                             }
+                            
                         }
                     }
                     DragContainer()

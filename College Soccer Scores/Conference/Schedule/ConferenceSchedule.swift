@@ -31,6 +31,7 @@ struct ConferenceSchedule: View {
                     } else {
                         VStack{
                             DropDown(scheduleModel: scheduleModel, scrollTo: $scrollTarget)
+                                .background(Color.white.shadow(radius: 2))
                             GameSchedule(scheduleModel: scheduleModel)
                         }
                         .padding(.vertical, 20)
